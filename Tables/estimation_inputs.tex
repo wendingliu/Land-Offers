@@ -1,0 +1,55 @@
+\begin{table}[H]
+    \caption{Inputs in the Bertrand Game model}
+    \centering
+    \resizebox{\textwidth}{!}{
+        \begin{tabular}{@{}ccccc@{}}
+            \toprule
+            {\ul}      & {Name }        & {Interpretation}
+                       & {Source}       & {Value/Range/Formula}
+            \\ \midrule
+            Parameters & $\beta$        & governments' revenue share
+                       & estimation     & $[0, 2]$
+            \\
+                       & $\sigma$       & scale parameter in the distribution of
+            $\varepsilon_{ik}$
+                       & estimation     & $(0, 1000]$
+            \\
+                       & $\alpha$       & capital income share
+                       & calibration    & $\{0.33, 0.5, 0.67\}$
+            \\ \midrule
+            Variables  & $Y_i$          & output level of firm
+                       & data           &
+            \\
+                       & $L_i$          & number of workers in the firm
+                       & data           &
+            \\
+                       & $T_i$          & area of land usage
+                       & data           &
+            \\         & $w_k$       & city average wage
+                       & data           &
+            \\
+                       & $B_i$          & firm's characteristic
+                       & data           & $L_i w_{k^*}^{\alpha}$
+            \\
+                       & $\mathbf{C}_i$ & firm's choice set
+                       & random draws   &
+            \\
+                       & $p^{i}_{obs}$  & observed land price for the firm
+                       & data           &
+            \\
+                       & $p^{i}_{min}$  & the minimum of possible land price
+                       & data           & $\max\{0, ~p^{i}_{obs} - 2000\}$
+            \\
+                       & $p^{i}_{max}$  & the maximum of possible land price
+                       & data           & $p^{i}_{obs} + 2000$
+            \\
+            \bottomrule
+            \label{table: inputs}
+        \end{tabular}}
+    \fnote{Notes: In this table, $w_k$ is the abbreviation of
+    $\{w_k\}_{k \in {\mathbf{C}_i}}$. $k^{*}$ is the city the firm actually lands in
+    (and I observe) in data. The specification
+    of $\mathbf{C}_i$ is written in the text. $[p^{i}_{min}, ~p^{i}_{max}]$
+    is the action space for the cities in the game of attracting firm $i$,
+    which is also described in the text.}
+\end{table}

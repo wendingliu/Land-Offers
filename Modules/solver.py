@@ -1,0 +1,250 @@
+"""
+Solver for Bertrand firm between cities attracting a firm based on Gauss-Seidel method
+"""
+
+import os
+import numpy as np
+import ray
+from scipy import optimize
+from numba import njit
+from typing import NamedTuple
+from operator import itemgetter
+
+
+# data class for a firm
+class Firm(NamedTuple):
+    i: int  # the firm's id
+    c: int  # the id of the city which the firm chooses in data
+    Y: float  # output of the firm (1,000 yuan)
+    L: float  # the firm's labor input in data (B = L * (wage ** alpha))
+    T: float  # the firm's demand of industrial land (hectare)
+    p: float  # the observed land price offered to the firm in data
+    # real term (years) of the land lease (from the perspective of officials)
+    # (50 years according to the contracts in data set)
+    m: float = 50.0
+
+
+# data class for a city gov
+class City(NamedTuple):
+    k: int  # the city's id
+    wage: float  # the city's wage level
+    gdp: float = 0.0  # the city's per capita gdp
+
+
+# data class for parameters we want to estimate
+class Params(NamedTuple):
+    alpha: float  # the income share of capital in the firm's production function
+    beta: float  # the output share for city government
+    sigma: float  # scale parameter in logit model
+
+
+@njit
+def cost(firm, obs_city, params, wages, prices):
+    """Return the array of observed costs for a firm to land in cities in its choice set.
+
+    firm: an instance of Firm class (actually a tuple).
+    obs_city: the city (data class) which the firm chooses in data.
+    params: an instance of Params data class.
+    wages: array of wages of each city (1000 yuan) in the firm's choice set.
+    prices: array of land prices offered by each city in the choice set.
+    """
+    # the firm's characteristic B = ((1-alpha)r/alpha)^alpha * (Y/A) = L * (wage ** alpha)
+    B = firm.L * (obs_city.wage**params.alpha)
+    return (1 / (1 - params.alpha)) * B * (wages ** (1 - params.alpha)) + (
+        (prices / firm.m) * firm.T
+    )
+
+
+@njit
+def prob(firm, obs_city, params, wages, prices):
+    """Return vector of probs for the firm to choose each city.
+
+    firm: an instance of Firm class (actually a tuple).
+    obs_city: the city (data class) which the firm chooses in data.
+    params: an instance of Params data class.
+    wages: array of wages in each city (1000 yuan) in the firm's choice set.
+    prices: array of land prices offered by each city in the choice set of the firm.
+    """
+    utils = -cost(firm, obs_city, params, wages, prices)
+    M = np.max(utils)  # maximum of deterministic utility
+    # vector of logit probs for the firm to choose each city in its choice set
+    probs = np.exp((utils - M) / params.sigma) / np.sum(
+        np.exp((utils - M) / params.sigma)
+    )
+    return probs
+
+
+# this function is not useful here
+@njit
+def value(firm, params, prices, probs):
+    """Return the expected value array of all cities attracting the firm
+    given the array of land prices all cities in its choice set offer.
+
+    firm: an instance of Firm class (actually a tuple).
+    params: an instance of Params data class.
+    prices: array of land prices offered by each city in the choice set.
+    probs: vector of probs for the firm to choose each city.
+    """
+    values = probs * (params.beta * firm.Y + prices * firm.T)
+    return values
+
+
+@njit
+def foc(firm, obs_city, params, wages, prices):
+    """Return the array of (l.h.s of) FOCs for each city in the firm's choice set.
+
+    firm: an instance of Firm class (actually a tuple).
+    obs_city: the city (data class) which the firm chooses in data.
+    params: an instance of Params data class.
+    wages: array of wages of cities (1000 yuan) in the firm's choice set.
+    prices: array of land prices offered by each city in the choice set.
+    """
+    probs = prob(firm, obs_city, params, wages, prices)
+    return 1 - (1 / (params.sigma * firm.m)) * (1 - probs) * (
+        params.beta * firm.Y + prices * firm.T
+    )
+
+
+def solver_creator(margin, tol=1e-10, max_iter=10_000):
+    """A closure creating solver
+    of the equilibrium price vector in the Bertrand game
+    using Gauss-Seidel method.
+
+    margin: the action space for attracting a firm is [max(0, firm.p - margin), firm.p + margin].
+    tol: convergence criteria.
+    max_iter: max number of iterations in the solver.
+    """
+
+    def ne(firm, obs_city, params, wages):
+        """Return the NE price vector for a firm.
+
+        firm: an instance of Firm data class (actually a tuple).
+        obs_city: the city (data class) which firm chooses in data.
+        params: an instance of Params data class.
+        wages: array of wages of cities (1000 yuan) in the firm's choice set.
+        """
+        pmin = max(0, firm.p - margin)
+        pmax = firm.p + margin
+        n = len(wages)  # number of cities in the firm's choice set
+        p = pmin * np.ones(n)  # initial price vector
+
+        for _iter in range(max_iter):
+            p_old = p.copy()  # price vector generated by last iteration
+            # change each city's price to its best response to other cities' prices in p_old
+            for k in range(n):
+                # F.O.C. of city k in choice set
+                def f(pk):
+                    p[k] = pk  # solution vector (np.concatenate costs more time)
+                    return foc(
+                        firm,
+                        obs_city,
+                        params,
+                        wages,
+                        p,
+                    )[k]
+
+                # if city k's value is decreasing in [pmin, pmax]
+                if f(pmin) <= 0.0:
+                    p[k] = pmin
+                # else if city k's value is increasing in [pmin, pmax]
+                elif f(pmax) >= 0.0:
+                    p[k] = pmax
+                else:  # solve F.O.C.
+                    p[k] = optimize.brentq(f, pmin, pmax)
+
+            # check whether converges after each iteration
+            if np.max(np.abs(p - p_old)) < tol:
+                return p
+
+        else:
+            print("NE not found after {} iterations.".format(max_iter))
+
+    return ne
+
+
+@ray.remote(num_cpus=1)
+class Solver:
+    """A Solver which can solve the NE price vectors for all firms in firm_list"""
+
+    def __init__(self, ne, all_cities):
+        """ne: a function generating the equilibrium price vector in a game,
+        which only accept `firm`, `obs_city`, `params`, `wages` as arguments.
+        all_cities: a list (not numba List) of all city data class. (sorted according to index)
+        """
+        self.ne = ne
+        self.all_cities = all_cities
+
+    def solve_game(self, firm_list, params, wages_list):
+        """firm_list: a list of firm data classes (each firm represents a game).
+        params: an instance of Params data class.
+        wages_list: a nested list of wages arrays for each firm's candidate cities.
+        """
+        try:
+            # firm.c is the city the firm chooses in data
+            return [
+                self.ne(firm, self.all_cities[firm.c], params, wages)
+                for (firm, wages) in zip(firm_list, wages_list)
+            ]
+        except:
+            # prevent the case len(firm_list) = len(wage_list) = 1,
+            # i.e. a cpu just solves one game, firm_list, wages_list is not a list (just one element)
+            print(type(firm_list))
+            firm, wages = Firm(firm_list), wages_list
+            return [self.ne(firm, self.all_cities[firm.c], params, wages)]
+
+
+@ray.remote(num_cpus=1)
+class Supervisor:
+    """The supervisor creates Solvers and dispatch games to Solvers"""
+
+    def __init__(self, all_firms, all_cities, ne):
+        """
+        all_firms: a list of firm data classes (all the games need to be solved).
+        all_cities: a list of all city data class. (sorted according to index)
+        ne: a function generating the equilibrium price vector for a game,
+            which only accepts `firm`, `params`, `wages` as argument.
+        """
+        self.n_cpus = os.cpu_count()
+        self.all_cities = all_cities
+        self.ne = ne
+        # create all_firms attributes
+        self.update_all_firms(all_firms)
+        # create n - 1 Solvers for n cpus (Supervisor itself uses 1 cpu)
+        self.solvers = [
+            Solver.remote(self.ne, self.all_cities) for i in range(self.n_cpus - 1)
+        ]
+
+    def update_all_firms(self, all_firms):
+        self.all_firms = all_firms
+        n_games = len(all_firms)
+
+        # in case only need to solve few games
+        assert (
+            n_games >= os.cpu_count()
+        ), "Too few games, please don't use parallelization!"
+
+        # the nested list for index arrays of games dispatched to each solver
+        self.ind_list = np.array_split(range(n_games), self.n_cpus - 1)
+
+    def update_params(self, params):
+        self.params = params
+
+    def update_all_wages(self, all_wages):
+        """all_wages: a nested list of wages array for each firm's (in all_firms) candidate cities."""
+        self.all_wages = all_wages
+
+    def solve_games(self):
+        """solve all the games, return a nested list of NE price vectors."""
+        ne_prices_all_cpus = ray.get(
+            [
+                sol.solve_game.remote(
+                    itemgetter(*self.ind_list[i])(self.all_firms),
+                    self.params,
+                    itemgetter(*self.ind_list[i])(self.all_wages),
+                )
+                for (i, sol) in enumerate(self.solvers)
+            ]
+        )  # a nested list containing n_cpus - 1 lists, which are results returned by each cpu
+
+        # flatten the nested list
+        return [ne for ne_prices in ne_prices_all_cpus for ne in ne_prices]

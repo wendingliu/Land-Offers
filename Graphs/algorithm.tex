@@ -1,0 +1,29 @@
+\SetKwComment{Comment}{/* }{ */}
+\RestyleAlgo{ruled}
+\begin{algorithm}
+
+    \caption{Gauss-Seidel algorithm to solve the Bertrand Game
+        $\langle \mathbf{C}_{i}, (S_{ik}), (v_{ik}) \rangle$}
+    \KwIn{any initial price vector $p_i$;
+
+    \quad\quad\quad~ action space $[p^i_{min}, p^i_{max}]$;
+
+    \quad\quad\quad~ $tol \gets 1e-10$ \Comment*[r]{Convergence criteria}
+    }
+    \KwResult{a price vector sufficiently close to NE $p^{*}$}
+    \Repeat{$max_{k}(abs(p^{0}_{ik} - p_{ik})) < tol$}{
+    {$p^{0}_i = p_i$}
+
+    \For{$k$ in $1:N_{i}$}{
+    \If{$f(p_{ik} = p^{i}_{min}) \leq 0$}{
+        $p_{ik} \gets p^{i}_{min}$
+    }
+    \ElseIf{$f(p_{ik} = p^{i}_{max}) \geq 0$}{
+        $p_{ik} \gets p^{i}_{max}$
+    }
+    \Else{$p_{ik} \gets \text{the root of } f(p_{ik})=0$}
+    }
+    }
+    \Return{$p_i$}
+    \label{gauss seidel}
+\end{algorithm}

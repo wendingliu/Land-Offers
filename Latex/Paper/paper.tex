@@ -1,0 +1,253 @@
+\documentclass[11pt, english]{article}
+\usepackage{enumerate}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{amsmath, mleftright}
+\DeclareMathOperator*{\argmax}{argmax}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator{\Var}{Var}
+\DeclareMathOperator{\AVar}{AVar}
+
+\usepackage{xparse}
+\usepackage{mathtools, nccmath}
+\usepackage{algorithm2e}
+\usepackage[T1]{fontenc}
+\usepackage[latin9]{inputenc}
+\usepackage[a4paper]{geometry}
+\geometry{verbose,tmargin=1in,bmargin=1in,lmargin=1in,rmargin=1in}
+\setlength{\parskip}{\smallskipamount}
+\setlength{\parindent}{2em}
+\usepackage{amsmath,amsthm,amsfonts,amssymb}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{airforceblue}{rgb}{0.36, 0.54, 0.66}
+\hypersetup{linkcolor=airforceblue,citecolor=airforceblue,urlcolor=black,
+filecolor=red,colorlinks=true}
+
+% \cref (for lower case) and \Cref (for upper case)
+\usepackage[nameinlink]{cleveref}
+
+% use \Cref to cite equation
+\Crefformat{equation}{#2Eq.~(#1)#3}
+
+% change \eqref to (1), where the parentheses are colorful
+\makeatletter
+\renewcommand*{\eqref}[1]{%
+  \hyperref[{#1}]{\textup{\tagform@{\ref*{#1}}}}%
+}
+\makeatother
+
+
+% tables
+\usepackage{booktabs}
+\usepackage[normalem]{ulem}
+\useunder{\uline}{\ul}{}
+
+\usepackage{makecell}
+
+\usepackage{etex}
+
+%Bibtex references
+\usepackage[round,nonamebreak]{natbib}
+% \bibliographystyle{plainnat}
+\bibliographystyle{econometrica}
+\usepackage{babel}
+
+\usepackage{datetime} % month-year format
+\newdateformat{monthyeardate}{%
+  \monthname[\THEMONTH], \THEYEAR}
+
+\theoremstyle{plain}
+\newtheorem{prp}{Proposition}
+\newtheorem{thm}{Theorem}
+\newtheorem{cor}{Corollary}[thm]
+\newtheorem{lem}{Lemma}
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+\newtheorem{assump}{Assumption}
+\renewcommand\theassump{A\arabic{assump}}
+
+\newtheorem{innerassumprim}{Assumption}
+\newenvironment{assumprim}[1]
+	{\renewcommand\theinnerassumprim{#1}\innerassumprim}
+	{\endinnerassumprim}
+
+
+\newcommand{\RomanNumeralCaps}[1]{\MakeUppercase{\romannumeral #1}}
+\newcommand{\RomanNumeral}[1]{{\romannumeral #1}}
+
+
+\newcommand{\bi}{\begin{itemize}}
+\newcommand{\ei}{\end{itemize}}
+\newcommand{\bn}{\begin{enumerate}}
+\newcommand{\en}{\end{enumerate}}
+
+% footnote of the graphs
+\newcommand\fnote[1]{\captionsetup{justification=raggedright, singlelinecheck=false,
+font=footnotesize}\caption*{#1}}
+
+% \renewcommand{\epsilon}{\varepsilon}	 % OVerwrites \epsion with \varepsilon
+
+\newenvironment{tight_enumerate}{
+\begin{enumerate}[(i)]
+  \setlength{\itemsep}{0pt}
+  \setlength{\parskip}{0pt}
+}{\end{enumerate}}
+\newcommand{\bnt}{\begin{tight_enumerate}}
+\newcommand{\ent}{\end{tight_enumerate}}
+
+%partial derivative
+\NewDocumentCommand{\evalat}{sO{\big}mm}{%
+  \IfBooleanTF{#1}
+   {\mleft. #3 \mright|_{#4}}
+   {#3#2|_{#4}}%
+}
+
+
+\tolerance=2000
+\vbadness=10000
+\hbadness=10000
+\def\argmin{\mathop{\it argmin}}
+\def\argmax{\mathop{\it argmax}}
+% to discourage line breaks in math
+\binoppenalty=10000
+\relpenalty=10000
+\interfootnotelinepenalty=10000 % Completely prevent breaking of footnotes
+
+% graphs and tables paths
+\newcommand{\graphs}{../../Graphs}
+\newcommand{\tables}{../../Tables}
+
+\newcommand\estbeta{0.45}
+\newcommand\estbetapercent{45\%}
+\newcommand\estsigma{178}
+
+
+%% BEGIN DOCUMENT
+\begin{document}
+
+\title{Land Offers and Fiscal Competition Between City Governments in China\thanks{
+    I am
+    indebted to my supervisor Fedor Iskhakov for
+    his continuous guidance on this paper.
+    I acknowledge comments from Xin Meng, Bob Gregory, Ruitian Lang, and John Stachurski
+    at the applied microeconomics seminar at ANU.}
+}
+
+\date{\monthyeardate\today}
+
+\author{Wending Liu\thanks{ Australian National University
+    \href{mailto:Wending.Liu@anu.edu.au}{\texttt{Wending.Liu@anu.edu.au}}}
+}
+\maketitle
+
+\noindent \begin{center}
+  \par\end{center}
+
+\begin{abstract}
+  I analyze the fiscal competition between city governments in China
+  by structurally estimating a Bertrand pricing game model.
+  The model characterizes the land pricing strategy of city governments as they use land
+  sales discounts to attract industrial firms.
+  The estimation results imply that city governments can generate a huge amount of fiscal revenue
+  from landing industrial firms,
+  which is around \estbetapercent ~of the firm's yearly output.
+  By counterfactual experiments, I show that
+  the impact of this kind of fiscal competition on resource allocation
+  is small. Simulation results also show that fiscal
+  centralization and increasing urban wages would result in a modest
+  average land price increase.
+
+
+  \bigskip{}
+
+
+  \noindent \textbf{Keywords:} Fiscal competition, land market, Bertrand game,
+  structural estimation
+
+  \smallskip{}
+
+
+  \noindent \textbf{JEL codes:} C57, H71
+
+  \bigskip{}
+
+\end{abstract}
+
+\clearpage{}
+
+\begin{spacing}{1.5} % 1.5 line space
+
+  %The structure of the paper:
+  \section{Introduction}
+  \label{sec:intro}
+  \input 1_intro.tex
+
+  \section{Fiscal Competition and Land Market in China}
+  \label{sec:institution}
+  \input 2_institution.tex
+
+  \section{The Model}
+  \label{sec:model}
+  \input 3_model.tex
+
+  \section{Data}
+  \label{sec:data}
+  \input 4_data.tex
+
+  \section{Estimation Method}
+  \label{sec:estimation}
+  \input 5_estimation.tex
+
+  \section{Estimation Results}
+  \label{sec:results}
+  \input 6_results.tex
+
+  \section{Counterfactual Analysis}
+  \label{sec:counterfactuals}
+  \input 7_counterfactuals.tex
+
+  \section{Conclusion}
+  \label{sec:conclusion}
+  \input 8_conclusion.tex
+
+\end{spacing}
+
+
+\begin{spacing}{1.5}
+
+  \section*{Appendix A: Proofs of the Theorems}
+  % add this section to the table of content
+  \label{sec:proofs}
+  \addcontentsline{toc}{section}{\protect\numberline{}Appendix A: Proofs of the Theorems}
+  \input 9_appendix_a.tex
+
+  \section*{Appendix B.1: Estimation Under Different Settings of Choice Sets}
+  \addcontentsline{toc}{section}{\protect\numberline{}Appendix B.1: Estimation Under
+    Different Settings of Choice Sets}
+  \label{sec:robustness checks 1}
+  \input 10_appendix_b1.tex
+
+  \section*{Appendix B.2: Estimation Under Different Participation Constraints}
+  \addcontentsline{toc}{section}{\protect\numberline{}Appendix B.2:
+    Estimation Under Different Participation Constraints}
+  \label{sec:robustness checks 2}
+  \input 11_appendix_b2.tex
+
+
+
+
+
+
+  %References
+
+  \addcontentsline{toc}{section}{References}
+  \bibliography{reference}
+
+
+\end{spacing}
+
+\end{document}
+
