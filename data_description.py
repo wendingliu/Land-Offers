@@ -4,6 +4,7 @@ need to install pyecharts version 0.5.11, and install all the map package.
 https://05x-docs.pyecharts.org/#/zh-cn/customize_map
 the default map is in html, need to manually save png file.
 """
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -13,7 +14,7 @@ from pyecharts import Geo
 
 def draw_map():
     # load geographical data of cities
-    cities = pd.read_csv("Data/city_longitude_latitude.csv")
+    cities = pd.read_csv("Data/data cleaning/city_longitude_latitude.csv")
     # update the city name for direct-administered municipalities and SAR
     cities.loc[cities.city.isnull(), "city"] = cities.province[cities.city.isnull()]
     # new column: number of firms in each city
@@ -135,9 +136,14 @@ def describe_data():
     ax1.set_title("output level")
     ax2.set_title("land price")
     plt.savefig("Graphs/data_distribution.pdf")
+    plt.close()
+
+
+def main():
+    draw_map()
+    describe_data()
 
 
 # test
 if __name__ == "__main__":
-    draw_map()
-    describe_data()
+    main()

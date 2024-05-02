@@ -73,7 +73,7 @@ def allocation(params, S=30):
     """
     f_sim_prices, all_short_lists, all_wages = creator_f_sim_prices(cities)
     # simulated land prices and probs for the whole sample under Bertrand Game
-    all_sim_prices1, all_sim_probs1 = f_sim_prices(Params(0.5, 0.45, 178), prob=True)
+    all_sim_prices1, all_sim_probs1 = f_sim_prices(Params(0.5, 0.45, 176), prob=True)
 
     # simulated probs for the whole sample under fixed land price
     all_sim_probs2 = []
@@ -138,7 +138,7 @@ def allocation(params, S=30):
 
 
 # 2. impacts of fiscal centralization
-def decrease_beta(alpha=0.5, beta=0.45, sigma=178, S=30):
+def decrease_beta(alpha=0.5, beta=0.45, sigma=176, S=30):
     beta_list = [
         beta,
         beta * 0.9,
@@ -226,7 +226,7 @@ def update_city(cities, ratio):
     return List(new_cities)
 
 
-def increase_wage(alpha=0.5, beta=0.45, sigma=178, S=30):
+def increase_wage(alpha=0.5, beta=0.45, sigma=176, S=30):
     increase_ratio = [1, 1.1, 1.25, 1.5]
     cities_list = [update_city(cities, ratio) for ratio in increase_ratio]
     total_output = np.sum([firm.Y for firm in firms])
@@ -300,9 +300,9 @@ def increase_wage(alpha=0.5, beta=0.45, sigma=178, S=30):
 
 
 def main():
-    allocation(Params(0.5, 0.45, 178), S=30)
-    decrease_beta(alpha=0.5, beta=0.45, sigma=178, S=30)
-    increase_wage(alpha=0.5, beta=0.45, sigma=178, S=30)
+    allocation(Params(0.5, 0.45, 176), S=30)
+    decrease_beta(alpha=0.5, beta=0.45, sigma=176, S=30)
+    increase_wage(alpha=0.5, beta=0.45, sigma=176, S=30)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 """Show the fit of the model by comparing empirical cdf 
    and descriptive statistics of observed data and simulated data.
 """
+
 import itertools
 import numpy as np
 import pandas as pd
@@ -85,7 +86,7 @@ def em_cdf(data, fname=None, xlabel=None, label_list=None):
 
 
 def main():
-    sim_sample_prices = f_sim_sample_prices(Params(0.5, 0.45, 178), S=30)
+    sim_sample_prices = f_sim_sample_prices(Params(0.5, 0.45, 176), S=30)
     # draw empirical cdf
     em_cdf(
         [all_obs_prices, sim_sample_prices],

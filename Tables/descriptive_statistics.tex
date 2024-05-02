@@ -1,39 +1,19 @@
 \begin{table}[H]
-    \centering
-    \caption{Descriptive statistics of variables in model}
-    \resizebox{\columnwidth}{!}{
-        \begin{tabular}{lccccc}
-            \toprule
-            {}   & \thead{land price                              \\(1,000 yuan/hectare)}
-                 & \thead{output                                  \\ (1,000 yuan/year)}
-                 & \thead{number of workers                       \\(person)}
-                 & \thead{area of land                            \\ (hectare)}
-                 & \thead{city wage                               \\ (1,000 yuan/year)} \\
-            \midrule
-            mean & 1685.10                  & 170733.30
-                 & 228.16                   & 4.59       & 36.96  \\
-            std  & 934.95                   & 409499.05
-                 & 143.57                   & 5.65       & 18.69  \\
-            min  & 379.50                   & 5662.00
-                 & 10.00                    & 0.03       & 17.21  \\
-            25\% & 978.62                   & 38354.00
-                 & 125.00                   & 1.60       & 30.49  \\
-            50\% & 1440.01                  & 72909.00
-                 & 223.00                   & 2.83       & 34.73  \\
-            75\% & 2015.52                  & 164553.00
-                 & 324.50                   & 5.40       & 39.83  \\
-            max  & 6001.56                  & 7282607.00
-                 & 2326.00                  & 65.48      & 320.63 \\
-            \midrule
-            N    & 1019                     & 1019
-                 & 1019                     & 1019       & 288    \\
-            \bottomrule
-        \end{tabular}
-    }
-    \label{table: descriptive statistics}
-    \fnote{Notes: There are 1019 observations (new firms established in 2012) in our data set.
-        The last column is the city average wage for 288 cities,
-        which is very close to the total number of
-        prefecture-level cities and direct-administered municipalities (297 cities) in China. And
-        25\%, 50\%, 74\% in the table mean 25\% percentile, median, 75\% percentile respectively.}
+\centering
+\caption{Descriptive statistics of firm level variables and city wage}
+\label{table: descriptive_statistics}
+\begin{tabular}{cccccc}
+\toprule
+ & land price (1,000 yuan/hectare) & output (1,000 yuan) & number of workers (person) & area of land (hectare) & city wage (1,000 yuan/year) \\
+\midrule
+mean & 1685.10 & 170733.30 & 228.16 & 4.59 & 35.96 \\
+std & 934.95 & 409499.05 & 143.57 & 5.65 & 8.24 \\
+min & 379.50 & 5662.00 & 10.00 & 0.03 & 17.21 \\
+25% & 978.62 & 38354.00 & 125.00 & 1.60 & 30.49 \\
+50% & 1440.01 & 72909.00 & 223.00 & 2.83 & 34.62 \\
+75% & 2015.52 & 164553.00 & 324.50 & 5.40 & 39.81 \\
+max & 6001.56 & 7282607.00 & 2326.00 & 65.48 & 77.03 \\
+N & 1019.00 & 1019.00 & 1019.00 & 1019.00 & 288.00 \\
+\bottomrule
+\end{tabular}
 \end{table}

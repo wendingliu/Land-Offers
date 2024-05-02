@@ -1,4 +1,5 @@
 """Estimator of the model"""
+
 import ray
 import itertools
 import numpy as np
@@ -169,7 +170,7 @@ def finer_search(
         bnds = (beta_bnd, sigma_bnd)
         f = lambda x: f_criteria(Params(alpha=alpha, beta=x[0], sigma=x[1] * 100))
 
-    res = optimize.minimize(f, x0=x0, method=method, bounds=bnds, tol=None)
+    res = optimize.minimize(f, x0=x0, method=method, bounds=bnds, tol=1e-6)
     if details:
         print(res)
     assert res.success == True, "minimizer cannot be found!"
