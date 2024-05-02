@@ -31,4 +31,4 @@ in the paper.
 - run main.py to get all the tables and graphs in the paper.
 (If you want to suppress the ray information, you may use ``python main.py 2>&1 > out.log`` to redirect the output to a log file.)
 
-&copy; 2023 Wending Liu <Wending.Liu@anu.edu.au>
+&copy; 2024 Wending Liu <Wending.Liu@anu.edu.au>
